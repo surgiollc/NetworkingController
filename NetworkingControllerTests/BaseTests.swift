@@ -25,7 +25,7 @@ class BaseTests: XCTestCase {
     
     func send(_ request: URLRequest) {
         self.currrentExpectation = self.defaultExpectation()
-        self.controller.perform(request: request)
+        self.controller.send(request)
         self.defaultWait()
     }
     

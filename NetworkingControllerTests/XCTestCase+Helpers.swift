@@ -16,7 +16,7 @@ extension XCTestCase {
     }
     
     func defaultWait() {
-        self.waitForExpectations(timeout: 10, handler: { (error: Error?) in
+        self.waitForExpectations(timeout: 2, handler: { (error: Error?) in
             if let unwrappedError: Error = error {
                 XCTFail("\(unwrappedError)")
             }

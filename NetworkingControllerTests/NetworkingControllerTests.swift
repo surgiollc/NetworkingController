@@ -10,9 +10,7 @@ import XCTest
 @testable import NetworkingController
 
 class NetworkingControllerTests: BaseTests {
-    
-    private var mockObject: MockObject?
-    
+        
     override func setUp() {
         super.setUp()
         self.controller = NetworkingController(sessionConfiguration: .ephemeral)
@@ -74,20 +72,23 @@ class NetworkingControllerTests: BaseTests {
 }
 
 extension NetworkingControllerTests: NetworkingControllerSuccessDelegate {
-    
-    func requestDidComplete(_ request: URLRequest, data: Data) {
+    func taskDidComplete(_ task: URLSessionTask, data: Data) {
         self.completionClosure(data, .none, .none)
+    }
+    
+    func taskDidComplete(_ task: URLSessionTask, document: JSONDocument) {
+        
     }
 }
 
 extension NetworkingControllerTests: NetworkingControllerErrorDelegate {
     
-    func requestDidReceiveAuthenticationChallenge(_ request: URLRequest) -> (username: String, password: String) {
-        return ("","")
+    func taskDidFail(_ task: URLSessionTask, error: NSError, status: URLResponseStatus?) {
+        self.completionClosure(.none, error, status)
     }
     
-    func requestDidFail(_ request: URLRequest, error: NSError, status: URLResponseStatus?) {
-        self.completionClosure(.none, error, status)
+    func requestDidReceiveAuthenticationChallenge(_ request: URLRequest) -> (username: String, password: String) {
+        return ("","")
     }
     
     func sessionDidFail(_ error: NSError?) {

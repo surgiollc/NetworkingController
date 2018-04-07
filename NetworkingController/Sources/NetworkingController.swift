@@ -14,7 +14,7 @@ public protocol NetworkingControllerAuthenticationDelegate: class {
 }
 
 public protocol NetworkingControllerErrorDelegate: class {
-    func requestDidFail(_ request: URLRequest, error: NSError, status: URLResponseStatus?)
+    func taskDidFail(_ task: URLSessionTask, error: NSError, status: URLResponseStatus?)
     func sessionDidFail(_ error: NSError?)
 }
 
@@ -25,7 +25,8 @@ extension NetworkingControllerErrorDelegate {
 }
 
 public protocol NetworkingControllerSuccessDelegate: class {
-    func requestDidComplete(_ request: URLRequest, data: Data)
+    func taskDidComplete(_ task: URLSessionTask, data: Data)
+    func taskDidComplete(_ task: URLSessionTask, document: JSONDocument)
 }
 
 open class NetworkingController: NSObject {
@@ -89,7 +90,7 @@ open class NetworkingController: NSObject {
     }
 
     // Returns the task ID
-    @discardableResult public func perform(request: URLRequest) -> Int {
+    @discardableResult public func send(_ request: URLRequest) -> Int {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         
         let dataTask: URLSessionDataTask = self.session.dataTask(with: request)
@@ -111,10 +112,10 @@ open class NetworkingController: NSObject {
         }
     }
 
-    private func throwReachabilityError(withRequest request: URLRequest) {
+    private func throwReachabilityError(for task: URLSessionTask) {
         DispatchQueue.main.async {
             let error: NSError = NSError.noInternetConnectionError
-            self.errorDelegate?.requestDidFail(request, error: error, status: .none)
+            self.errorDelegate?.taskDidFail(task, error: error, status: .none)
         }
     }
 
@@ -140,41 +141,68 @@ extension NetworkingController: URLSessionDataDelegate {
         DispatchQueue.main.async {
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
-        guard let request: URLRequest = self.requests[task.taskIdentifier] else {
-            assertionFailure("request must not be nil")
+        guard let request: URLRequest = self.requests[task.taskIdentifier] , error == nil else {
+            DispatchQueue.main.async {
+                guard let error: Error = error else { return }
+                self.errorDelegate?.taskDidFail(task, error: error as NSError, status: .none)
+            }
             return
         }
-        self.readResponseData({ (allData: inout [Int: Data]) in
-            guard let existingData: Data        = allData[task.taskIdentifier],
-                let response:       URLResponse = task.response else {
+        let status: URLResponseStatus? = task.responseStatus
+        self.readResponseData({ [weak self] (mutableData) in
+            guard let strongSelf: NetworkingController = self, let existingData: Data = mutableData[task.taskIdentifier], let response = task.response else {
                 return
             }
             do {
-                self._requestForValidation = request
-                if let validation: APIURLResponseValidationType = self as? APIURLResponseValidationType {
+                strongSelf._requestForValidation  = request
+                if let validation = strongSelf as? APIURLResponseValidationType {
                     try validation.validateResponse(response)
                 }
-                DispatchQueue.main.async {
-                    self.successDelegate?.requestDidComplete(request, data: existingData)
-                }
-            } catch {
-                let status: URLResponseStatus? = (task.response as? HTTPURLResponse).flatMap({ URLResponseStatus(rawValue: $0.statusCode) })
-                var errorUserInto: [String: Any] = [:]
-                if let json: JSONDictionary? = try? JSONSerialization.jsonObject(with: existingData, options: []) as? JSONDictionary {
-                    if let nestedErrorString: String = json?["error"].flatMap(JSONArrayObject)?.first as? String {
-                        errorUserInto[NSLocalizedDescriptionKey] = nestedErrorString
-                    } else if let errorString: String = json?["error"] as? String {
-                        errorUserInto[NSLocalizedDescriptionKey] = errorString
+                if type(of: strongSelf) == JSONNetworkingController.self {
+                    if status != .NoContent {
+                        if let document: JSONDocument = JSONDocument(data: existingData) {
+                            DispatchQueue.main.async {
+                                strongSelf.successDelegate?.taskDidComplete(task, document: document)
+                            }
+                        } else {
+                            DispatchQueue.main.async {
+                                strongSelf.successDelegate?.taskDidComplete(task, data: existingData)
+                            }
+                        }
                     } else {
-                        errorUserInto[NSLocalizedDescriptionKey] = NSLocalizedString("An unknown error occurred", comment: "")
+                        DispatchQueue.main.async {
+                            strongSelf.successDelegate?.taskDidComplete(task, data: existingData)
+                        }
                     }
                 } else {
-                    errorUserInto[NSLocalizedDescriptionKey] = NSLocalizedString("An unknown error occurred", comment: "")
+                    DispatchQueue.main.async {
+                        strongSelf.successDelegate?.taskDidComplete(task, data: existingData)
+                    }
                 }
-                let URLError = NSError(domain: "com.spinlister.NetworkingController", code: 0, userInfo: errorUserInto)
-                DispatchQueue.main.async {
-                    self.errorDelegate?.requestDidFail(request, error: URLError, status: status)
+            } catch {
+                var errorUserInfo: [String: AnyObject] = [:]
+                switch status?.rawValue {
+                case  NSURLErrorTimedOut?:
+                    errorUserInfo[NSLocalizedDescriptionKey] = NSLocalizedString("The connection timed out, checkout your internet connection and try again", comment: "") as AnyObject?
+                default:
+                    if let json = try? JSONSerialization.jsonObject(with: existingData as Data, options: []) as? JSONObject {
+                        let title: String?
+                        let message: String?
+                        if let info: JSONObject = json?["errors"].flatMap(toJSONObjectArray)?.first {
+                            title = info["title"].flatMap(toJSONString)
+                            message = info["detail"].flatMap(toJSONString)
+                        } else {
+                            title = NSLocalizedString("Unknown error", comment: "")
+                            message = NSLocalizedString("An unknown error occurred", comment: "")
+                        }
+                        errorUserInfo[NSLocalizedDescriptionKey] = title as AnyObject
+                        errorUserInfo[NSLocalizedFailureReasonErrorKey] = message as AnyObject
+                    } else {
+                        errorUserInfo[NSLocalizedDescriptionKey] = NSLocalizedString("An unknown error occurred", comment: "") as AnyObject
+                    }
                 }
+                let urlError = NSError(domain: "com.surgio.NetworkingController", code: 0, userInfo: errorUserInfo)
+                strongSelf.errorDelegate?.taskDidFail(task, error: urlError, status: status)
                 return
             }
         })

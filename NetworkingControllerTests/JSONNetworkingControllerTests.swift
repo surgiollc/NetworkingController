@@ -11,9 +11,17 @@ import XCTest
 
 class JSONNetworkingControllerTests: BaseTests {
     
+    private var jsonApiCompletion: ((JSONDocument?, Error?, URLResponseStatus?) -> Void)!
+    
     var enteredUsername: String?
     var enteredPassword: String?
     var canProceedWithoutAuthentication: Bool = false
+    
+    private var okJSONAPIRequest: URLRequest {
+        let bundle: Bundle = Bundle(for: type(of: self))
+        let url: URL = bundle.url(forResource: "jsonapi_response", withExtension: "json")!
+        return URLRequest(url: url)
+    }
     
     override func setUp() {
         super.setUp()
@@ -107,12 +115,28 @@ class JSONNetworkingControllerTests: BaseTests {
         }
         self.send(request)
     }
+    
+    // MARK: JSON API
+    
+    func testThatJSONAPIDocumentIsNotNil() {
+        self.jsonApiCompletion = { (document: JSONDocument?, error: Error?, status: URLResponseStatus?) -> Void in
+            XCTAssertEqual(status, .OK, "status is not OK")
+            XCTAssertNil(error, "error is not nil")
+            XCTAssertNotNil(document, "document is nil")
+            self.currrentExpectation.fulfill()
+        }
+        self.send(self.okJSONAPIRequest)
+    }
 }
 
 extension JSONNetworkingControllerTests: NetworkingControllerSuccessDelegate {
     
-    func requestDidComplete(_ request: URLRequest, data: Data) {
-        self.completionClosure(data, .none, .OK)
+    func taskDidComplete(_ task: URLSessionTask, data: Data) {
+        self.completionClosure?(data, .none, .OK)
+    }
+    
+    func taskDidComplete(_ task: URLSessionTask, document: JSONDocument) {
+        self.jsonApiCompletion?(document, .none, .OK)
     }
 }
 
@@ -131,8 +155,7 @@ extension JSONNetworkingControllerTests: NetworkingControllerAuthenticationDeleg
 }
 
 extension JSONNetworkingControllerTests: NetworkingControllerErrorDelegate {
-    
-    func requestDidFail(_ request: URLRequest, error: NSError, status: URLResponseStatus?) {
+    func taskDidFail(_ task: URLSessionTask, error: NSError, status: URLResponseStatus?) {
         self.completionClosure(.none, error, status)
     }
     
