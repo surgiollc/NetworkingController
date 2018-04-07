@@ -11,6 +11,8 @@ import XCTest
 
 class NetworkingControllerTests: BaseTests {
     
+    private var mockObject: MockObject?
+    
     override func setUp() {
         super.setUp()
         self.controller = NetworkingController(sessionConfiguration: .ephemeral)
@@ -59,6 +61,15 @@ class NetworkingControllerTests: BaseTests {
         self.send(request)
     }
     
+    func testThatNetworkingControllerDoesNotLeak() {
+        let request: URLRequest = URLRequest(url: URL(string: "http://www.google.com")!)
+        self.completionClosure = { _, _, _ in
+            self.controller = nil
+            XCTAssertNil(self.controller)
+            self.currrentExpectation.fulfill()
+        }
+        self.send(request)
+    }
     
 }
 
