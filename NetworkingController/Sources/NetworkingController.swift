@@ -165,21 +165,21 @@ extension NetworkingController: URLSessionDataDelegate {
                 if type(of: strongSelf) == JSONNetworkingController.self {
                     if status != .NoContent {
                         if let document: JSONDocument = JSONDocument(data: existingData) {
-                            DispatchQueue.main.async {
+                            DispatchQueue.global().async {
                                 strongSelf.successDelegate?.taskDidComplete(task, document: document)
                             }
                         } else {
-                            DispatchQueue.main.async {
+                            DispatchQueue.global().async {
                                 strongSelf.successDelegate?.taskDidComplete(task, data: existingData)
                             }
                         }
                     } else {
-                        DispatchQueue.main.async {
+                        DispatchQueue.global().async {
                             strongSelf.successDelegate?.taskDidComplete(task, data: existingData)
                         }
                     }
                 } else {
-                    DispatchQueue.main.async {
+                    DispatchQueue.global().async {
                         strongSelf.successDelegate?.taskDidComplete(task, data: existingData)
                     }
                 }
@@ -206,7 +206,9 @@ extension NetworkingController: URLSessionDataDelegate {
                     }
                 }
                 let urlError = NSError(domain: "com.surgio.NetworkingController", code: 0, userInfo: errorUserInfo)
-                strongSelf.errorDelegate?.taskDidFail(task, error: urlError, status: status)
+                DispatchQueue.global().async {
+                    strongSelf.errorDelegate?.taskDidFail(task, error: urlError, status: status)
+                }
                 return
             }
         })
