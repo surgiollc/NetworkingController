@@ -18,10 +18,10 @@ public struct JSONResource: JSONAPIResource {
         return self.attributes?[attr] as? T
     }
     
-    let json: JSONObject
-    let numberFormatter: NumberFormatter = NumberFormatter()
+    public let json: JSONObject
+    private let numberFormatter: NumberFormatter = NumberFormatter()
     
-    init(ID: Int? = nil, type: String, attributes: JSONObject? = nil, relationships: [String: JSONDocument]? = nil) {
+    public init(ID: Int? = nil, type: String, attributes: JSONObject? = nil, relationships: [String: JSONDocument]? = nil) {
         var newJson: JSONObject = ["type": type]
         if let ID: Int = ID {
             newJson["id"] = ID
@@ -39,7 +39,7 @@ public struct JSONResource: JSONAPIResource {
         self.json = newJson
     }
     
-    init(json: JSONObject) {
+    public init(json: JSONObject) {
         self.json = json
     }
     

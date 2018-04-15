@@ -22,7 +22,7 @@ public struct JSONDocument: JSONAPIResource {
         self.json = json
     }
     
-    init(resource: JSONResource) {
+    public init(resource: JSONResource) {
         self.json = ["data": resource.json]
     }
     

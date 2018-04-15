@@ -19,8 +19,12 @@ public protocol NetworkingControllerErrorDelegate: class {
 }
 
 extension NetworkingControllerErrorDelegate {
-    func requestDidReceiveAuthenticationChallenge(_ request: URLRequest) -> (username: String, password: String)? {
+    public func requestDidReceiveAuthenticationChallenge(_ request: URLRequest) -> (username: String, password: String)? {
         return .none
+    }
+    
+    public func shouldProceedWithAuthenticationChallendWithoutCredentials(_ request: URLRequest) -> Bool {
+        return true
     }
 }
 
