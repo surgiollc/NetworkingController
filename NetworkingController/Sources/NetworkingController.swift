@@ -95,7 +95,9 @@ open class NetworkingController: NSObject {
 
     // Returns the task ID
     @discardableResult public func send(_ request: URLRequest) -> Int {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        DispatchQueue.main.async {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        }
         
         let dataTask: URLSessionDataTask = self.session.dataTask(with: request)
         self.requests[dataTask.taskIdentifier] = request
