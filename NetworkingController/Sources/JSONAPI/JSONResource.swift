@@ -8,6 +8,11 @@
 
 import Foundation
 
+public enum JSONResourceError: Error {
+    case wrongType(String)
+    case missingAttribute(String)
+}
+
 public struct JSONResource: JSONAPIResource {
     
     public subscript(relationship rel: String) -> JSONDocument? {
