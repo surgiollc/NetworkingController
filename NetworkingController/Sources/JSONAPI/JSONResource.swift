@@ -10,7 +10,16 @@ import Foundation
 
 public enum JSONResourceError: Error {
     case wrongType(String?)
-    case missingAttribute(String?)
+    case missingAttribute(String)
+    
+    public var localizedDescription: String {
+        switch self {
+        case .wrongType(let type):
+            return "Unexpected resource type: \(type)"
+        case .missingAttribute(let attribute):
+            return "Missing attribute \(attribute)"
+        }
+    }
 }
 
 public struct JSONResource: JSONAPIResource {
