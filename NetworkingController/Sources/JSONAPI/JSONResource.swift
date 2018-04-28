@@ -9,8 +9,8 @@
 import Foundation
 
 public enum JSONResourceError: Error {
-    case wrongType(String)
-    case missingAttribute(String)
+    case wrongType(String?)
+    case missingAttribute(String?)
 }
 
 public struct JSONResource: JSONAPIResource {
