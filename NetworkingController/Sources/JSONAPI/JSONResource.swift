@@ -84,6 +84,23 @@ public struct JSONResource: JSONAPIResource {
         return result
     }
     
+    public func relatedResources(for resource: JSONResource, in document: JSONDocument) -> [JSONResource] {
+        var result: [JSONResource] = []
+        if let relationships: JSONDocument.Relationships = self.relationships {
+            for (resourceType, doc) in relationships {
+                let filter: (JSONResource) -> Bool = { resource in
+                    return resource.ID == doc.resourceObject?.ID && resource.type == resourceType
+                }
+                guard let includedIndex: Int = document.includes.index(where: filter) else {
+                    continue
+                }
+                let includedResource: JSONResource = document.includes[includedIndex]
+                result.append(includedResource)
+            }
+        }
+        return result
+    }
+    
     public var meta: JSONObject? {
         return self["meta"] as? JSONObject
     }
