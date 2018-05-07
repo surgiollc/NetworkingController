@@ -41,20 +41,17 @@ open class NetworkingController: NSObject {
         }
         set {
             self.sessionConfiguration.protocolClasses = newValue
+            self.session = URLSession(
+                configuration: self.sessionConfiguration,
+                delegate: self.sessionDelegate,
+                delegateQueue: OperationQueue()
+            )
         }
     }
     
     private let sessionConfiguration: URLSessionConfiguration
-
-    private lazy var session: URLSession = {
-        let queue: OperationQueue = OperationQueue()
-        queue.maxConcurrentOperationCount = 5
-        return URLSession(
-            configuration: self.sessionConfiguration,
-            delegate: self,
-            delegateQueue: queue
-        )
-    }()
+    private let sessionDelegate: NetworkingControllerSessionDelegate
+    private var session: URLSession
     
     private var _requestForValidation: URLRequest?
     
@@ -79,14 +76,21 @@ open class NetworkingController: NSObject {
         }
     }
     
-    init(sessionConfiguration: URLSessionConfiguration) {
-        self.sessionConfiguration = sessionConfiguration
-        super.init()
+    convenience override init() {
+        self.init(sessionConfiguration: .default)
     }
     
-    override init() {
-        self.sessionConfiguration = .default
+    init(sessionConfiguration: URLSessionConfiguration) {
+        self.sessionConfiguration = sessionConfiguration
+        let _sessionDelegate: NetworkingControllerSessionDelegate = NetworkingControllerSessionDelegate()
+        self.sessionDelegate = _sessionDelegate
+        self.session = URLSession(
+            configuration: sessionConfiguration,
+            delegate: _sessionDelegate,
+            delegateQueue: OperationQueue()
+        )
         super.init()
+        self.sessionDelegate.controller = self
     }
     
     deinit {

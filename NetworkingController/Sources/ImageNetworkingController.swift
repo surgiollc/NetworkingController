@@ -10,7 +10,7 @@ import Foundation
 
 public final class ImageNetworkingController: NetworkingController, APIURLResponseImageType {
     
-    public convenience override init() {
+    public convenience init() {
         self.init(sessionConfiguration: .default)
     }
     
