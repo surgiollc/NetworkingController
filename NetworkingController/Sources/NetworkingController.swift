@@ -33,7 +33,11 @@ public protocol NetworkingControllerSuccessDelegate: class {
     func taskDidComplete(_ task: URLSessionTask, document: JSONDocument)
 }
 
+public typealias NetworkingControllerDelegate = NetworkingControllerSuccessDelegate & NetworkingControllerErrorDelegate & NetworkingControllerAuthenticationDelegate
+
 open class NetworkingController: NSObject {
+    
+    private typealias Request = (URLRequest, NetworkingControllerDelegate)
     
     private static var sessionConfiguration: URLSessionConfiguration = URLSessionConfiguration.default
     private static let sessionDelegate: NetworkingControllerSessionDelegate = NetworkingControllerSessionDelegate()
@@ -45,22 +49,13 @@ open class NetworkingController: NSObject {
         return self._requestForValidation
     }
 
-    private var requests: [Int: URLRequest] = [:]
+    private var requests: [Int: Request] = [:]
     private var responseData: [Int: Data] = [:]
 
     private let responseDataAccessQueue: DispatchQueue = DispatchQueue(label: "com.spinlister.networkingcontroller")
     
     private let serverTrustDelegate: ServerTrustDelegate = ServerTrustDelegate()
     private let basicAuthDelegate: HTTPBasicAuthDelegate = HTTPBasicAuthDelegate()
-
-    open weak var successDelegate: NetworkingControllerSuccessDelegate?
-    open weak var errorDelegate: NetworkingControllerErrorDelegate?
-    open weak var authenticationDelegate: NetworkingControllerAuthenticationDelegate? {
-        didSet {
-            self.basicAuthDelegate.authDelegate = self.authenticationDelegate
-            self.serverTrustDelegate.authDelegate = self.authenticationDelegate
-        }
-    }
     
     static func configureForTesting(with urlProtocolClass: URLProtocol.Type) {
         let configuration: URLSessionConfiguration = URLSessionConfiguration.ephemeral
@@ -85,15 +80,19 @@ open class NetworkingController: NSObject {
     deinit {
         NetworkingController.session.invalidateAndCancel()
     }
+    
+    func delegate(for task: URLSessionTask) -> NetworkingControllerDelegate? {
+        return self.requests[task.taskIdentifier]?.1
+    }
 
     // Returns the task ID
-    @discardableResult public func send(_ request: URLRequest) -> Int {
+    @discardableResult public func send(_ request: URLRequest, delegate: NetworkingControllerDelegate) -> Int {
         DispatchQueue.main.async {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
         }
         
         let dataTask: URLSessionDataTask = NetworkingController.session.dataTask(with: request)
-        self.requests[dataTask.taskIdentifier] = request
+        self.requests[dataTask.taskIdentifier] = (request, delegate)
         
         self.readResponseData({ (data: inout [Int: Data]) in
             data[dataTask.taskIdentifier] = Data()
@@ -114,7 +113,7 @@ open class NetworkingController: NSObject {
     private func throwReachabilityError(for task: URLSessionTask) {
         DispatchQueue.main.async {
             let error: NSError = NSError.noInternetConnectionError
-            self.errorDelegate?.taskDidFail(task, error: error, status: .none)
+            self.delegate(for: task)?.taskDidFail(task, error: error, status: .none)
         }
     }
 
@@ -140,16 +139,20 @@ extension NetworkingController: URLSessionDataDelegate {
         DispatchQueue.main.async {
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
-        guard let request: URLRequest = self.requests[task.taskIdentifier] , error == nil else {
+        guard let request: URLRequest = self.requests[task.taskIdentifier]?.0 , error == nil else {
             DispatchQueue.main.async {
                 guard let error: Error = error else { return }
-                self.errorDelegate?.taskDidFail(task, error: error as NSError, status: .none)
+                self.delegate(for: task)?.taskDidFail(task, error: error as NSError, status: .none)
             }
+            self.requests.removeValue(forKey: task.taskIdentifier)
             return
         }
         let status: URLResponseStatus? = task.responseStatus
         self.readResponseData({ [weak self] (mutableData) in
-            guard let strongSelf: NetworkingController = self, let existingData: Data = mutableData[task.taskIdentifier], let response = task.response else {
+            defer {
+                self?.requests.removeValue(forKey: task.taskIdentifier)
+            }
+            guard let strongSelf: NetworkingController = self, let existingData: Data = mutableData[task.taskIdentifier], let response = task.response, let delegate: NetworkingControllerDelegate = strongSelf.delegate(for: task) else {
                 return
             }
             do {
@@ -161,21 +164,21 @@ extension NetworkingController: URLSessionDataDelegate {
                     if status != .NoContent {
                         if let document: JSONDocument = JSONDocument(data: existingData) {
                             DispatchQueue.global().async {
-                                strongSelf.successDelegate?.taskDidComplete(task, document: document)
+                                delegate.taskDidComplete(task, document: document)
                             }
                         } else {
                             DispatchQueue.global().async {
-                                strongSelf.successDelegate?.taskDidComplete(task, data: existingData)
+                                delegate.taskDidComplete(task, data: existingData)
                             }
                         }
                     } else {
                         DispatchQueue.global().async {
-                            strongSelf.successDelegate?.taskDidComplete(task, data: existingData)
+                            delegate.taskDidComplete(task, data: existingData)
                         }
                     }
                 } else {
                     DispatchQueue.global().async {
-                        strongSelf.successDelegate?.taskDidComplete(task, data: existingData)
+                        delegate.taskDidComplete(task, data: existingData)
                     }
                 }
             } catch {
@@ -202,7 +205,7 @@ extension NetworkingController: URLSessionDataDelegate {
                 }
                 let urlError = NSError(domain: "com.surgio.NetworkingController", code: 0, userInfo: errorUserInfo)
                 DispatchQueue.global().async {
-                    strongSelf.errorDelegate?.taskDidFail(task, error: urlError, status: status)
+                    delegate.taskDidFail(task, error: urlError, status: status)
                 }
                 return
             }
@@ -225,7 +228,9 @@ extension NetworkingController: URLSessionTaskDelegate {
         case NSURLAuthenticationMethodHTTPBasic,
              NSURLAuthenticationMethodHTTPDigest:
             // create URLCredential with username/password, ask user for it
+            self.basicAuthDelegate.authDelegate = self.delegate(for: task)
             self.basicAuthDelegate.urlSession(session, task: task, didReceive: challenge, completionHandler: completionHandler)
+            self.basicAuthDelegate.authDelegate = .none
             
         case NSURLAuthenticationMethodClientCertificate:
             // client provides cert for server to verify
@@ -234,7 +239,9 @@ extension NetworkingController: URLSessionTaskDelegate {
             
         case NSURLAuthenticationMethodServerTrust:
             // server provides cert for client to verify
+            self.serverTrustDelegate.authDelegate = self.delegate(for: task)
             self.serverTrustDelegate.urlSession(session, task: task, didReceive: challenge, completionHandler: completionHandler)
+            self.serverTrustDelegate.authDelegate = .none
             
         default:
             self.performDefaultHandling(challenge, completionHandler: completionHandler)
