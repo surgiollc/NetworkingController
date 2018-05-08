@@ -40,8 +40,16 @@ open class NetworkingController: NSObject {
     private typealias Request = (URLRequest, NetworkingControllerDelegate)
     
     private static var sessionConfiguration: URLSessionConfiguration = URLSessionConfiguration.default
-    private static let sessionDelegate: NetworkingControllerSessionDelegate = NetworkingControllerSessionDelegate()
-    private static var session: URLSession = URLSession.shared
+    private static var sessionDelegate: NetworkingControllerSessionDelegate {
+        return self.session.delegate as! NetworkingControllerSessionDelegate
+    }
+    private static var session: URLSession = {
+        return URLSession(
+            configuration: .default,
+            delegate: NetworkingControllerSessionDelegate(),
+            delegateQueue: OperationQueue()
+        )
+    }()
     
     private var _requestForValidation: URLRequest?
     
@@ -66,7 +74,7 @@ open class NetworkingController: NSObject {
     static func configureSession(with configuration: URLSessionConfiguration) {
         self.sessionConfiguration = configuration
         self.session =  URLSession(
-            configuration: sessionConfiguration,
+            configuration: self.sessionConfiguration,
             delegate: self.sessionDelegate,
             delegateQueue: OperationQueue()
         )
@@ -75,10 +83,6 @@ open class NetworkingController: NSObject {
     public override init() {
         super.init()
         NetworkingController.sessionDelegate.controller = self
-    }
-    
-    deinit {
-        NetworkingController.session.invalidateAndCancel()
     }
     
     func delegate(for task: URLSessionTask) -> NetworkingControllerDelegate? {
