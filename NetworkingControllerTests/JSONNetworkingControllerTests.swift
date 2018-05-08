@@ -25,11 +25,11 @@ class JSONNetworkingControllerTests: BaseTests {
     
     override func setUp() {
         super.setUp()
-        self.controller = JSONNetworkingController(sessionConfiguration: .ephemeral)
+        NetworkingController.configureForTesting(with: TestingProtocol.self)
+        self.controller = JSONNetworkingController()
         self.controller.successDelegate = self
         self.controller.errorDelegate = self
         self.controller.authenticationDelegate = self
-        self.controller.urlProtocols = [TestingProtocol.self]
     }
     
     override func tearDown() {

@@ -35,23 +35,9 @@ public protocol NetworkingControllerSuccessDelegate: class {
 
 open class NetworkingController: NSObject {
     
-    open var urlProtocols: [AnyClass]? {
-        get {
-            return self.sessionConfiguration.protocolClasses
-        }
-        set {
-            self.sessionConfiguration.protocolClasses = newValue
-            self.session = URLSession(
-                configuration: self.sessionConfiguration,
-                delegate: self.sessionDelegate,
-                delegateQueue: OperationQueue()
-            )
-        }
-    }
-    
-    private let sessionConfiguration: URLSessionConfiguration
-    private let sessionDelegate: NetworkingControllerSessionDelegate
-    private var session: URLSession
+    private static var sessionConfiguration: URLSessionConfiguration = URLSessionConfiguration.default
+    private static let sessionDelegate: NetworkingControllerSessionDelegate = NetworkingControllerSessionDelegate()
+    private static var session: URLSession = URLSession.shared
     
     private var _requestForValidation: URLRequest?
     
@@ -76,25 +62,28 @@ open class NetworkingController: NSObject {
         }
     }
     
-    convenience override init() {
-        self.init(sessionConfiguration: .default)
+    static func configureForTesting(with urlProtocolClass: URLProtocol.Type) {
+        let configuration: URLSessionConfiguration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [urlProtocolClass]
+        self.configureSession(with: configuration)
     }
     
-    init(sessionConfiguration: URLSessionConfiguration) {
-        self.sessionConfiguration = sessionConfiguration
-        let _sessionDelegate: NetworkingControllerSessionDelegate = NetworkingControllerSessionDelegate()
-        self.sessionDelegate = _sessionDelegate
-        self.session = URLSession(
+    static func configureSession(with configuration: URLSessionConfiguration) {
+        self.sessionConfiguration = configuration
+        self.session =  URLSession(
             configuration: sessionConfiguration,
-            delegate: _sessionDelegate,
+            delegate: self.sessionDelegate,
             delegateQueue: OperationQueue()
         )
+    }
+    
+    override init() {
         super.init()
-        self.sessionDelegate.controller = self
+        NetworkingController.sessionDelegate.controller = self
     }
     
     deinit {
-        self.session.invalidateAndCancel()
+        NetworkingController.session.invalidateAndCancel()
     }
 
     // Returns the task ID
@@ -103,7 +92,7 @@ open class NetworkingController: NSObject {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
         }
         
-        let dataTask: URLSessionDataTask = self.session.dataTask(with: request)
+        let dataTask: URLSessionDataTask = NetworkingController.session.dataTask(with: request)
         self.requests[dataTask.taskIdentifier] = request
         
         self.readResponseData({ (data: inout [Int: Data]) in

@@ -13,10 +13,10 @@ class NetworkingControllerTests: BaseTests {
         
     override func setUp() {
         super.setUp()
-        self.controller = NetworkingController(sessionConfiguration: .ephemeral)
+        NetworkingController.configureForTesting(with: TestingProtocol.self)
+        self.controller = NetworkingController()
         self.controller.successDelegate = self
         self.controller.errorDelegate = self
-        self.controller.urlProtocols = [TestingProtocol.self]
     }
     
     override func tearDown() {
