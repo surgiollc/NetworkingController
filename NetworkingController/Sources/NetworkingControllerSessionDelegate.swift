@@ -8,20 +8,34 @@
 
 import Foundation
 
+class WeakNetworkingController {
+    weak var value: NetworkingController?
+    
+    init(value: NetworkingController) {
+        self.value = value
+    }
+}
+
 final class NetworkingControllerSessionDelegate: NSObject, URLSessionTaskDelegate, URLSessionDataDelegate {
     
-    weak var controller: NetworkingController?
+    var controllers: [WeakNetworkingController] = []
     
     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        self.controller?.urlSession(session, dataTask: dataTask, didReceive: data)
+        self.controllers.forEach {
+            $0.value?.urlSession(session, dataTask: dataTask, didReceive: data)
+        }
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        self.controller?.urlSession(session, task: task, didCompleteWithError: error)
+        self.controllers.forEach {
+            $0.value?.urlSession(session, task: task, didCompleteWithError: error)
+        }
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        self.controller?.urlSession(session, task: task, didReceive: challenge, completionHandler: completionHandler)
+        self.controllers.forEach {
+            $0.value?.urlSession(session, task: task, didReceive: challenge, completionHandler: completionHandler)
+        }
     }
 
 }

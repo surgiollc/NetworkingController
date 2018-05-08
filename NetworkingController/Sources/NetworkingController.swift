@@ -39,17 +39,10 @@ open class NetworkingController: NSObject {
     
     private typealias Request = (URLRequest, NetworkingControllerDelegate)
     
-    private static var sessionConfiguration: URLSessionConfiguration = URLSessionConfiguration.default
     private static var sessionDelegate: NetworkingControllerSessionDelegate {
         return self.session.delegate as! NetworkingControllerSessionDelegate
     }
-    private static var session: URLSession = {
-        return URLSession(
-            configuration: .default,
-            delegate: NetworkingControllerSessionDelegate(),
-            delegateQueue: OperationQueue()
-        )
-    }()
+    private static var session: URLSession = URLSession(configuration: .default, delegate: NetworkingControllerSessionDelegate(), delegateQueue: .none)
     
     private var _requestForValidation: URLRequest?
     
@@ -68,21 +61,22 @@ open class NetworkingController: NSObject {
     static func configureForTesting(with urlProtocolClass: URLProtocol.Type) {
         let configuration: URLSessionConfiguration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [urlProtocolClass]
-        self.configureSession(with: configuration)
-    }
-    
-    static func configureSession(with configuration: URLSessionConfiguration) {
-        self.sessionConfiguration = configuration
         self.session =  URLSession(
-            configuration: self.sessionConfiguration,
-            delegate: self.sessionDelegate,
+            configuration: configuration,
+            delegate: NetworkingControllerSessionDelegate(),
             delegateQueue: OperationQueue()
         )
     }
     
     public override init() {
         super.init()
-        NetworkingController.sessionDelegate.controller = self
+        NetworkingController.sessionDelegate.controllers.append(WeakNetworkingController(value: self))
+    }
+    
+    deinit {
+        if let index: Int = NetworkingController.sessionDelegate.controllers.index(where: { $0.value == self }) {
+            NetworkingController.sessionDelegate.controllers.remove(at: index)
+        }
     }
     
     func delegate(for task: URLSessionTask) -> NetworkingControllerDelegate? {
