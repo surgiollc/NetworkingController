@@ -35,6 +35,49 @@ public protocol NetworkingControllerSuccessDelegate: class {
 
 public typealias NetworkingControllerDelegate = NetworkingControllerSuccessDelegate & NetworkingControllerErrorDelegate & NetworkingControllerAuthenticationDelegate
 
+public final class AnyNetworkingControllerDelegate: NetworkingControllerDelegate {
+    
+    private let _taskDidFail: (URLSessionTask, NSError, URLResponseStatus?) -> Void
+    private let _sessionDidfail: (NSError?) -> Void
+    private let _taskDidCompleteWithData: (URLSessionTask, Data) -> Void
+    private let _taskDidCompleteWithDocument: (URLSessionTask, JSONDocument) -> Void
+    private let _didReceiveAuthChallenge: (URLRequest) -> (String, String)?
+    private let _shouldProceedWithoutCredentials: (URLRequest) -> Bool
+    
+    public init(_ delegate: NetworkingControllerDelegate) {
+        self._taskDidFail = delegate.taskDidFail
+        self._sessionDidfail = delegate.sessionDidFail
+        self._taskDidCompleteWithData = delegate.taskDidComplete
+        self._taskDidCompleteWithDocument = delegate.taskDidComplete
+        self._didReceiveAuthChallenge = delegate.requestDidReceiveAuthenticationChallenge
+        self._shouldProceedWithoutCredentials = delegate.shouldProceedWithAuthenticationChallendWithoutCredentials
+    }
+    
+    public func taskDidFail(_ task: URLSessionTask, error: NSError, status: URLResponseStatus?) {
+        self._taskDidFail(task, error, status)
+    }
+    
+    public func sessionDidFail(_ error: NSError?) {
+        self._sessionDidfail(error)
+    }
+    
+    public func taskDidComplete(_ task: URLSessionTask, data: Data) {
+        self._taskDidCompleteWithData(task, data)
+    }
+    
+    public func taskDidComplete(_ task: URLSessionTask, document: JSONDocument) {
+        self._taskDidCompleteWithDocument(task, document)
+    }
+    
+    public func requestDidReceiveAuthenticationChallenge(_ request: URLRequest) -> (username: String, password: String)? {
+        return self._didReceiveAuthChallenge(request)
+    }
+    
+    public func shouldProceedWithAuthenticationChallendWithoutCredentials(_ request: URLRequest) -> Bool {
+        return self._shouldProceedWithoutCredentials(request)
+    }
+}
+
 open class NetworkingController: NSObject {
     
     private typealias Request = (URLRequest, NetworkingControllerDelegate)
@@ -70,13 +113,11 @@ open class NetworkingController: NSObject {
     
     public override init() {
         super.init()
-        NetworkingController.sessionDelegate.controllers.append(WeakNetworkingController(value: self))
+        NetworkingController.sessionDelegate.addController(self)
     }
     
     deinit {
-        if let index: Int = NetworkingController.sessionDelegate.controllers.index(where: { $0.value == self }) {
-            NetworkingController.sessionDelegate.controllers.remove(at: index)
-        }
+        NetworkingController.sessionDelegate.removeController(self)
     }
     
     func delegate(for task: URLSessionTask) -> NetworkingControllerDelegate? {
@@ -90,7 +131,7 @@ open class NetworkingController: NSObject {
         }
         
         let dataTask: URLSessionDataTask = NetworkingController.session.dataTask(with: request)
-        self.requests[dataTask.taskIdentifier] = (request, delegate)
+        self.requests[dataTask.taskIdentifier] = (request, AnyNetworkingControllerDelegate(delegate))
         
         self.readResponseData({ (data: inout [Int: Data]) in
             data[dataTask.taskIdentifier] = Data()
