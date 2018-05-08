@@ -72,7 +72,7 @@ open class NetworkingController: NSObject {
         )
     }
     
-    override init() {
+    public override init() {
         super.init()
         NetworkingController.sessionDelegate.controller = self
     }
