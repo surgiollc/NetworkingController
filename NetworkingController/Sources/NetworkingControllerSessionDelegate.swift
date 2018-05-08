@@ -23,27 +23,25 @@ final class NetworkingControllerSessionDelegate: NSObject, URLSessionTaskDelegat
         self.controllers.append(WeakBox(controller))
     }
     
-    func removeController(_ controller: NetworkingController) {
-        if let index: Int = self.controllers.index(where: { $0.unbox == controller }) {
-            self.controllers.remove(at: index)
-        }
+    func removeNilControllers() {
+        self.controllers = self.controllers.filter { $0.unbox != nil }
     }
     
     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        self.controllers.forEach {
-            $0.unbox?.urlSession(session, dataTask: dataTask, didReceive: data)
+        for controller in self.controllers where controller.unbox != nil {
+            controller.unbox?.urlSession(session, dataTask: dataTask, didReceive: data)
         }
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        self.controllers.forEach {
-            $0.unbox?.urlSession(session, task: task, didCompleteWithError: error)
+        for controller in self.controllers where controller.unbox != nil {
+            controller.unbox?.urlSession(session, task: task, didCompleteWithError: error)
         }
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        self.controllers.forEach {
-            $0.unbox?.urlSession(session, task: task, didReceive: challenge, completionHandler: completionHandler)
+        for controller in self.controllers where controller.unbox != nil {
+            controller.unbox?.urlSession(session, task: task, didReceive: challenge, completionHandler: completionHandler)
         }
     }
 

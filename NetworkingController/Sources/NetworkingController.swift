@@ -117,7 +117,7 @@ open class NetworkingController: NSObject {
     }
     
     deinit {
-        NetworkingController.sessionDelegate.removeController(self)
+        NetworkingController.sessionDelegate.removeNilControllers()
     }
     
     func delegate(for task: URLSessionTask) -> NetworkingControllerDelegate? {
