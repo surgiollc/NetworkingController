@@ -27,8 +27,63 @@ public enum JSONResourceError: Error {
 
 public struct JSONResource: JSONAPIResource {
     
-    public subscript(relationship rel: String) -> JSONDocument? {
-        return self.relationships?[rel]
+    public typealias RelatedObject = (ID: Int, type: String)
+    
+    public struct Relationship: Collection {
+        
+        public let key: String
+        
+        private var dataArray: [JSONObject] {
+            var result: [JSONObject] = []
+            if let data: JSON = self.json["data"] {
+                if let object: JSONObject = data as? JSONObject {
+                    result.append(object)
+                } else if let objectArray: [JSONObject] = data as? [JSONObject] {
+                    result.append(contentsOf: objectArray)
+                }
+            }
+            return result
+        }
+    
+        public var objects: [RelatedObject] {
+            var result: [RelatedObject] = []
+            for data in self.dataArray {
+                if let id: Int = data["id"].flatMap(toJSONInt),
+                    let type: String = data["type"].flatMap(toJSONString) {
+                    result.append((id, type))
+                } else {
+                    continue
+                }
+            }
+            return result
+        }
+        
+        private let json: JSONObject
+        
+        init(key: String, json: JSONObject) {
+            self.key = key
+            self.json = json
+        }
+        
+        public var startIndex: Int {
+            return self.objects.startIndex
+        }
+        
+        public var endIndex: Int {
+            return self.objects.endIndex
+        }
+        
+        public func index(after i: Int) -> Int {
+            return self.objects.index(after: i)
+        }
+        
+        public subscript(_ index: Int) -> RelatedObject {
+            return self.objects[index]
+        }
+    }
+    
+    public subscript(relationship rel: String) -> Relationship? {
+        return self.relationships.first(where: { $0.key == rel })
     }
     
     public subscript<T>(attribute attr: String) -> T? {
@@ -38,7 +93,7 @@ public struct JSONResource: JSONAPIResource {
     public let json: JSONObject
     private let numberFormatter: NumberFormatter = NumberFormatter()
     
-    public init(ID: Int? = nil, type: String, attributes: JSONObject? = nil, relationships: [String: JSONDocument]? = nil) {
+    public init(ID: Int? = nil, type: String, attributes: JSONObject? = nil, relationships: [String: JSONObject]? = nil) {
         var newJson: JSONObject = ["type": type]
         if let ID: Int = ID {
             newJson["id"] = ID
@@ -46,12 +101,8 @@ public struct JSONResource: JSONAPIResource {
         if let attrs: JSONObject = attributes {
             newJson["attributes"] = attrs
         }
-        if let relationships: [String: JSONDocument] = relationships {
-            var newRelationships: JSONObject = [:]
-            for (key, value) in relationships {
-                newRelationships[key] = value.json
-            }
-            newJson["relationships"] = newRelationships
+        if let relationships: [String: JSONObject] = relationships {
+            newJson["relationships"] = relationships
         }
         self.json = newJson
     }
@@ -76,30 +127,29 @@ public struct JSONResource: JSONAPIResource {
         return self["attributes"].flatMap(toJSONObject)
     }
     
-    public var relationships: JSONDocument.Relationships? {
-        guard let relationships: [String: JSONObject] = self["relationships"] as? [String: JSONObject] else {
-            return .none
+    public var relationships: [Relationship] {
+        guard let relationships: JSONObject = self["relationships"] as? JSONObject else {
+            return []
         }
-        var result: JSONDocument.Relationships = [:]
-        for (key, value) in relationships {
-            result[key] = JSONDocument(json: value)
+        var result: [Relationship] = []
+        for (key, value) in relationships where value is JSONObject {
+            let rel: Relationship = Relationship(key: key, json: value as! JSONObject)
+            result.append(rel)
         }
         return result
     }
     
-    public func relatedResources(for resource: JSONResource, in document: JSONDocument) -> [JSONResource] {
+    public func relatedResources(in document: JSONDocument) -> [JSONResource] {
         var result: [JSONResource] = []
-        if let relationships: JSONDocument.Relationships = self.relationships {
-            for (resourceType, doc) in relationships {
-                let filter: (JSONResource) -> Bool = { resource in
-                    return resource.ID == doc.resourceObject?.ID && resource.type == resourceType
-                }
-                guard let includedIndex: Int = document.includes.index(where: filter) else {
-                    continue
-                }
-                let includedResource: JSONResource = document.includes[includedIndex]
-                result.append(includedResource)
+        for relationship in self.relationships {
+            let filter: (JSONResource) -> Bool = { includedResource in
+                return relationship.objects.first(where: { includedResource.ID == $0.0 && includedResource.type == $0.1 }) != nil
             }
+            guard let includedIndex: Int = document.includes.index(where: filter) else {
+                continue
+            }
+            let includedResource: JSONResource = document.includes[includedIndex]
+            result.append(includedResource)
         }
         return result
     }
@@ -108,9 +158,21 @@ public struct JSONResource: JSONAPIResource {
         return self["meta"] as? JSONObject
     }
     
-    public func relationship(ofType type: AnyObject.Type) -> JSONResource? {
-        let key = String(describing: type).lowercased()
-        return self.relationships?[key]?.resourceObject
+    public func relationship(ofType type: AnyObject.Type) -> Relationship? {
+        var result: Relationship? = .none
+        let typeString: String = String(describing: type).lowercased()
+        for relationship in self.relationships {
+            let whereClosure: ((Int, String)) -> Bool = { object in
+                return object.1 == typeString
+            }
+            if relationship.objects.contains(where: whereClosure) {
+                result = relationship
+                break
+            } else {
+                continue
+            }
+        }
+        return result
     }
 }
 

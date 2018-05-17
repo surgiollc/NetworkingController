@@ -47,13 +47,13 @@ final class JSONDocumentTests: XCTestCase {
         XCTAssertEqual(resource?.ID, 1)
         let title: String? = resource?[attribute: "title"]
         XCTAssertEqual(title, "title")
-        let authorDocument: JSONDocument? = resource?[relationship: "author"]
-        XCTAssertNotNil(authorDocument)
-        let authorLinks: JSONObject? = authorDocument?.links
-        XCTAssertNotNil(authorLinks)
-        XCTAssertEqual(authorLinks?["self"] as? String, "/articles/1/relationships/author")
-        XCTAssertEqual(authorDocument?.resourceObject?.type, "people")
-        XCTAssertEqual(authorDocument?.resourceObject?.ID, 9)
+        let authorRel: JSONResource.Relationship! = resource?[relationship: "author"]
+        XCTAssertNotNil(authorRel)
+        let authorObject: JSONResource.RelatedObject! = authorRel.first
+        XCTAssertNotNil(authorObject)
+        XCTAssertEqual(authorRel.key, "author")
+        XCTAssertEqual(authorObject.type, "people")
+        XCTAssertEqual(authorObject.ID, 9)
     }
     
     func testThatErrorsAreCorrect() {

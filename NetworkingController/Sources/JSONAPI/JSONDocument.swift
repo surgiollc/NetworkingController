@@ -9,9 +9,7 @@
 import Foundation
 
 public struct JSONDocument: JSONAPIResource {
-    
-    public typealias Relationships = [String: JSONDocument]
-    
+        
     public let json: JSONObject
     
     public var rootDataObject: JSONObject? {

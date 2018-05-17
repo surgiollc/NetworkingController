@@ -13,6 +13,7 @@
 		360238DB20785649007CB50D /* JSONDocumentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360238DA20785649007CB50D /* JSONDocumentTests.swift */; };
 		360238DD207945BD007CB50D /* JSONResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360238DC207945BD007CB50D /* JSONResource.swift */; };
 		360238DF207945CD007CB50D /* JSONAPIResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360238DE207945CD007CB50D /* JSONAPIResource.swift */; };
+		3617214820ADE8BD001900F8 /* JSONResourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3617214720ADE8BD001900F8 /* JSONResourceTests.swift */; };
 		3617374E1F6DDA5A00426EC9 /* NetworkingController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 361737441F6DDA5A00426EC9 /* NetworkingController.framework */; };
 		361737531F6DDA5A00426EC9 /* NetworkingControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361737521F6DDA5A00426EC9 /* NetworkingControllerTests.swift */; };
 		361737551F6DDA5A00426EC9 /* NetworkingController.h in Headers */ = {isa = PBXBuildFile; fileRef = 361737471F6DDA5A00426EC9 /* NetworkingController.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -55,6 +56,7 @@
 		360238DA20785649007CB50D /* JSONDocumentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDocumentTests.swift; sourceTree = "<group>"; };
 		360238DC207945BD007CB50D /* JSONResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONResource.swift; sourceTree = "<group>"; };
 		360238DE207945CD007CB50D /* JSONAPIResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONAPIResource.swift; sourceTree = "<group>"; };
+		3617214720ADE8BD001900F8 /* JSONResourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONResourceTests.swift; sourceTree = "<group>"; };
 		361737441F6DDA5A00426EC9 /* NetworkingController.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkingController.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		361737471F6DDA5A00426EC9 /* NetworkingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetworkingController.h; sourceTree = "<group>"; };
 		361737481F6DDA5A00426EC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -151,6 +153,7 @@
 				361737521F6DDA5A00426EC9 /* NetworkingControllerTests.swift */,
 				369B9AC31F70916B00C42E63 /* JSONNetworkingControllerTests.swift */,
 				360238DA20785649007CB50D /* JSONDocumentTests.swift */,
+				3617214720ADE8BD001900F8 /* JSONResourceTests.swift */,
 				361737541F6DDA5A00426EC9 /* Info.plist */,
 			);
 			path = NetworkingControllerTests;
@@ -332,6 +335,7 @@
 				361737531F6DDA5A00426EC9 /* NetworkingControllerTests.swift in Sources */,
 				369B9AC61F7091C900C42E63 /* BaseTests.swift in Sources */,
 				360238DB20785649007CB50D /* JSONDocumentTests.swift in Sources */,
+				3617214820ADE8BD001900F8 /* JSONResourceTests.swift in Sources */,
 				369B9AC41F70916B00C42E63 /* JSONNetworkingControllerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
