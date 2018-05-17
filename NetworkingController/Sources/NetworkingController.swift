@@ -120,6 +120,10 @@ open class NetworkingController: NSObject {
         NetworkingController.sessionDelegate.removeNilControllers()
     }
     
+    func canHandle(_ task: URLSessionTask) -> Bool {
+        return self.delegate(for: task) != nil
+    }
+    
     func delegate(for task: URLSessionTask) -> NetworkingControllerDelegate? {
         return self.requests[task.taskIdentifier]?.1
     }
@@ -256,6 +260,11 @@ extension NetworkingController: URLSessionTaskDelegate {
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         
+        guard let delegate: NetworkingControllerDelegate = self.delegate(for: task) else {
+            self.performDefaultHandling(challenge, completionHandler: completionHandler)
+            return
+        }
+        
         guard challenge.previousFailureCount == 0 else {
             self.cancel(challenge, completionHandler: completionHandler)
             return
@@ -267,7 +276,7 @@ extension NetworkingController: URLSessionTaskDelegate {
         case NSURLAuthenticationMethodHTTPBasic,
              NSURLAuthenticationMethodHTTPDigest:
             // create URLCredential with username/password, ask user for it
-            self.basicAuthDelegate.authDelegate = self.delegate(for: task)
+            self.basicAuthDelegate.authDelegate = delegate
             self.basicAuthDelegate.urlSession(session, task: task, didReceive: challenge, completionHandler: completionHandler)
             self.basicAuthDelegate.authDelegate = .none
             
@@ -278,7 +287,7 @@ extension NetworkingController: URLSessionTaskDelegate {
             
         case NSURLAuthenticationMethodServerTrust:
             // server provides cert for client to verify
-            self.serverTrustDelegate.authDelegate = self.delegate(for: task)
+            self.serverTrustDelegate.authDelegate = delegate
             self.serverTrustDelegate.urlSession(session, task: task, didReceive: challenge, completionHandler: completionHandler)
             self.serverTrustDelegate.authDelegate = .none
             

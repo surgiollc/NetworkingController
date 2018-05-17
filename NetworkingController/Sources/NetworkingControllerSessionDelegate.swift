@@ -29,18 +29,27 @@ final class NetworkingControllerSessionDelegate: NSObject, URLSessionTaskDelegat
     
     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         for controller in self.controllers where controller.unbox != nil {
+            guard controller.unbox!.canHandle(dataTask) else {
+                continue
+            }
             controller.unbox?.urlSession(session, dataTask: dataTask, didReceive: data)
         }
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         for controller in self.controllers where controller.unbox != nil {
+            guard controller.unbox!.canHandle(task) else {
+                continue
+            }
             controller.unbox?.urlSession(session, task: task, didCompleteWithError: error)
         }
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         for controller in self.controllers where controller.unbox != nil {
+            guard controller.unbox!.canHandle(task) else {
+                continue
+            }
             controller.unbox?.urlSession(session, task: task, didReceive: challenge, completionHandler: completionHandler)
         }
     }
