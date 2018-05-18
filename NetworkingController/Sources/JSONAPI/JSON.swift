@@ -12,7 +12,7 @@ public typealias JSON = Any
 public typealias JSONObject = [String: JSON]
 public typealias JSONArray = [JSON]
 
-func toJSONString(_ object: JSON) -> String? {
+public func toJSONString(_ object: JSON) -> String? {
     if let string: String = object as? String, string.count > 0 {
         return string
     } else {
@@ -20,7 +20,7 @@ func toJSONString(_ object: JSON) -> String? {
     }
 }
 
-func toJSONBoolString(_ object: JSON) -> Bool? {
+public func toJSONBoolean(_ object: JSON) -> Bool? {
     if let number = object as? NSNumber {
         return number.boolValue
     } else {
@@ -28,7 +28,7 @@ func toJSONBoolString(_ object: JSON) -> Bool? {
     }
 }
 
-func toJSONInt(_ object: JSON) -> Int? {
+public func toJSONInt(_ object: JSON) -> Int? {
     if let string = object as? String {
         let formatter = NumberFormatter()
         return formatter.number(from: string)?.intValue
@@ -37,11 +37,19 @@ func toJSONInt(_ object: JSON) -> Int? {
     }
 }
 
-func toJSONDouble(_ object: JSON) -> Double? {
+public func toJSONInt16(_ object: JSON) -> Int16? {
+    if let int: Int = toJSONInt(object) {
+        return Int16(int)
+    } else {
+        return .none
+    }
+}
+
+public func toJSONDouble(_ object: JSON) -> Double? {
     return object as? Double
 }
 
-func toJSONDecimal(_ object: JSON) -> Decimal? {
+public func toJSONDecimal(_ object: JSON) -> Decimal? {
     if let string = object as? String {
         let formatter = NumberFormatter()
         return formatter.number(from: string).flatMap({ Decimal($0.doubleValue) })
@@ -50,15 +58,15 @@ func toJSONDecimal(_ object: JSON) -> Decimal? {
     }
 }
 
-func toJSONArrayObject(_ object: JSON) -> JSONArray? {
+public func toJSONArrayObject(_ object: JSON) -> JSONArray? {
     return object as? JSONArray
 }
 
-func toJSONObject(_ object: JSON) -> JSONObject? {
+public func toJSONObject(_ object: JSON) -> JSONObject? {
     return object as? JSONObject
 }
 
-func toJSONObjectArray(_ object: JSON) -> [JSONObject]? {
+public func toJSONObjectArray(_ object: JSON) -> [JSONObject]? {
     return object as? [JSONObject]
 }
 
