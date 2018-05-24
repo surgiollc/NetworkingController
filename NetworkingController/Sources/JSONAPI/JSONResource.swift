@@ -142,14 +142,16 @@ public struct JSONResource: JSONAPIResource {
     public func relatedResources(in document: JSONDocument) -> [JSONResource] {
         var result: [JSONResource] = []
         for relationship in self.relationships {
-            let filter: (JSONResource) -> Bool = { includedResource in
-                return relationship.objects.first(where: { includedResource.ID == $0.0 && includedResource.type == $0.1 }) != nil
+            for object in relationship.objects {
+                let filter: (JSONResource) -> Bool = { includedResource in
+                    return includedResource.ID == object.ID && includedResource.type == object.type
+                }
+                guard let includedIndex: Int = document.includes.index(where: filter) else {
+                    continue
+                }
+                let includedResourceForRelationship: JSONResource = document.includes[includedIndex]
+                result.append(includedResourceForRelationship)
             }
-            guard let includedIndex: Int = document.includes.index(where: filter) else {
-                continue
-            }
-            let includedResource: JSONResource = document.includes[includedIndex]
-            result.append(includedResource)
         }
         return result
     }
