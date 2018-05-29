@@ -44,7 +44,7 @@ final class JSONDocumentTests: XCTestCase {
         let resource: JSONResource? = self.document.resourceObject
         XCTAssertNotNil(resource)
         XCTAssertEqual(resource?.type, "articles")
-        XCTAssertEqual(resource?.ID, 1)
+        XCTAssertEqual(resource?.ID, "1")
         let title: String? = resource?[attribute: "title"]
         XCTAssertEqual(title, "title")
         let authorRel: JSONResource.Relationship! = resource?[relationship: "author"]
@@ -53,7 +53,7 @@ final class JSONDocumentTests: XCTestCase {
         XCTAssertNotNil(authorObject)
         XCTAssertEqual(authorRel.key, "author")
         XCTAssertEqual(authorObject.type, "people")
-        XCTAssertEqual(authorObject.ID, 9)
+        XCTAssertEqual(authorObject.ID, "9")
     }
     
     func testThatErrorsAreCorrect() {
@@ -76,7 +76,7 @@ final class JSONDocumentTests: XCTestCase {
         XCTAssertEqual(includes.count, 1)
         let resource: JSONResource = includes.first!
         XCTAssertEqual(resource.type, "people")
-        XCTAssertEqual(resource.ID, 9)
+        XCTAssertEqual(resource.ID, "9")
         let name: String? = resource[attribute: "first-name"]
         XCTAssertEqual(name, "Dan")
         XCTAssertEqual(resource.links?["self"] as? String, "http://example.com/people/9")

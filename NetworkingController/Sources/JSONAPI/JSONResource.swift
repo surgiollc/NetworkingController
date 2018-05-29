@@ -27,7 +27,7 @@ public enum JSONResourceError: Error {
 
 public struct JSONResource: JSONAPIResource {
     
-    public typealias RelatedObject = (ID: Int, type: String)
+    public typealias RelatedObject = (ID: String, type: String)
     
     public struct Relationship: Collection {
         
@@ -48,7 +48,7 @@ public struct JSONResource: JSONAPIResource {
         public var objects: [RelatedObject] {
             var result: [RelatedObject] = []
             for data in self.dataArray {
-                if let id: Int = data["id"].flatMap(toJSONInt),
+                if let id: String = data["id"].flatMap(toJSONString),
                     let type: String = data["type"].flatMap(toJSONString) {
                     result.append((id, type))
                 } else {
@@ -93,9 +93,9 @@ public struct JSONResource: JSONAPIResource {
     public let json: JSONObject
     private let numberFormatter: NumberFormatter = NumberFormatter()
     
-    public init(ID: Int? = nil, type: String, attributes: JSONObject? = nil, relationships: [String: JSONObject]? = nil) {
+    public init(ID: String? = nil, type: String, attributes: JSONObject? = nil, relationships: [String: JSONObject]? = nil) {
         var newJson: JSONObject = ["type": type]
-        if let ID: Int = ID {
+        if let ID: String = ID {
             newJson["id"] = ID
         }
         if let attrs: JSONObject = attributes {
@@ -111,8 +111,8 @@ public struct JSONResource: JSONAPIResource {
         self.json = json
     }
     
-    public var ID: Int? {
-        return self["id"].flatMap(toJSONInt)
+    public var ID: String? {
+        return self["id"].flatMap(toJSONString)
     }
     
     public var type: String? {
@@ -164,7 +164,7 @@ public struct JSONResource: JSONAPIResource {
         var result: Relationship? = .none
         let typeString: String = String(describing: type).lowercased()
         for relationship in self.relationships {
-            let whereClosure: ((Int, String)) -> Bool = { object in
+            let whereClosure: ((String, String)) -> Bool = { object in
                 return object.1 == typeString
             }
             if relationship.objects.contains(where: whereClosure) {

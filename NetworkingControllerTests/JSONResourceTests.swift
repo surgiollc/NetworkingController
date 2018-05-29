@@ -37,18 +37,18 @@ final class JSONResourceTests: XCTestCase {
         let authorObject: JSONResource.RelatedObject? = author?.first
         XCTAssertNotNil(authorObject)
         XCTAssertEqual(authorObject?.type, "people")
-        XCTAssertEqual(authorObject?.ID, 9)
+        XCTAssertEqual(authorObject?.ID, "9")
         
         let array: JSONResource.Relationship? = self.resource?[relationship: "array"]
         XCTAssertNotNil(array)
         XCTAssertEqual(array?.key, "array")
         let firstObject: JSONResource.RelatedObject? = array?.first
         XCTAssertNotNil(firstObject)
-        XCTAssertEqual(firstObject?.ID, 1)
+        XCTAssertEqual(firstObject?.ID, "1")
         XCTAssertEqual(firstObject?.type, "stuff")
         let lastObejct: JSONResource.RelatedObject? = array?[1]
         XCTAssertNotNil(lastObejct)
-        XCTAssertEqual(lastObejct?.ID, 2)
+        XCTAssertEqual(lastObejct?.ID, "2")
         XCTAssertEqual(lastObejct?.type, "stuff")
     }
     
@@ -58,7 +58,7 @@ final class JSONResourceTests: XCTestCase {
         XCTAssertEqual(includedResources?.count, 1)
         let includedResource: JSONResource? = includedResources?.first
         XCTAssertEqual(includedResource?.type, "people")
-        XCTAssertEqual(includedResource?.ID, 9)
+        XCTAssertEqual(includedResource?.ID, "9")
         
     }
 }
