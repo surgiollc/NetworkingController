@@ -38,7 +38,7 @@ final class NetworkingControllerSessionDelegate: NSObject, URLSessionTaskDelegat
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         for controller in self.controllers where controller.unbox != nil {
-            guard controller.unbox!.canHandle(task) else {
+            guard controller.unbox?.canHandle(task) == true else {
                 continue
             }
             controller.unbox?.urlSession(session, task: task, didCompleteWithError: error)
@@ -47,7 +47,7 @@ final class NetworkingControllerSessionDelegate: NSObject, URLSessionTaskDelegat
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         for controller in self.controllers where controller.unbox != nil {
-            guard controller.unbox!.canHandle(task) else {
+            guard controller.unbox?.canHandle(task) == true else {
                 continue
             }
             controller.unbox?.urlSession(session, task: task, didReceive: challenge, completionHandler: completionHandler)
