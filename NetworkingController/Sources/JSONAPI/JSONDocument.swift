@@ -16,6 +16,10 @@ public struct JSONDocument: JSONAPIResource {
         return self.json["data"] as? JSONObject
     }
     
+    public var data: Data? {
+        return try? JSONSerialization.data(withJSONObject: self.json, options: [])
+    }
+    
     init(json: JSONObject) {
         self.json = json
     }
