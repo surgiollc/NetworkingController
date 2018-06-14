@@ -28,7 +28,7 @@ public struct JSONDocument: JSONAPIResource {
         self.json = ["data": resource.json]
     }
     
-    init?(data: Data) {
+    public init?(data: Data) {
         if let object: Any = try? JSONSerialization.jsonObject(with: data, options: []),
             let json: JSONObject = object as? JSONObject,
             json["data"] != nil {
