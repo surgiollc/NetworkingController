@@ -8,9 +8,10 @@
 
 import Foundation
 
-enum MIMEType: String {
-    case pngImage  = "image/png"
-    case json   = "application/json"
-    case html   = "text/html"
+public enum MIMEType: String {
+    case pngImage   = "image/png"
+    case jpgImage   = "image/jpeg"
+    case json       = "application/json"
+    case html       = "text/html"
 }
 
