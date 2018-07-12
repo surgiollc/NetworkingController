@@ -68,7 +68,7 @@ extension APIURLResponseJSONType {
 extension APIURLResponseImageType {
     
     var expectedMimeType: [MIMEType] {
-        return [.pngImage]
+        return [.pngImage, .jpgImage]
     }
 
     var expectedStatus: [URLResponseStatus] {
