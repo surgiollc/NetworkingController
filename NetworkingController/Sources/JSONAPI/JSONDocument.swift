@@ -28,6 +28,12 @@ public struct JSONDocument: JSONAPIResource {
         self.json = ["data": resource.json]
     }
     
+    public init(resources: [JSONResource]) {
+        self.json = [
+            "data": resources.map({ $0.json })
+        ]
+    }
+    
     public init?(data: Data) {
         if let object: Any = try? JSONSerialization.jsonObject(with: data, options: []),
             let json: JSONObject = object as? JSONObject,
