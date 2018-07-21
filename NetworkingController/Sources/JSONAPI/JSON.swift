@@ -15,6 +15,8 @@ public typealias JSONArray = [JSON]
 public func toJSONString(_ object: JSON) -> String? {
     if let string: String = object as? String, string.count > 0 {
         return string
+    } else if let int: Int = object as? Int {
+        return String(describing: int)
     } else {
         return .none
     }
