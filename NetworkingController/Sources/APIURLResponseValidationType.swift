@@ -55,6 +55,8 @@ extension APIURLResponseJSONType {
             return [.OK, .NoContent]
         case HTTPMethod.put.rawValue:
             return [.OK, .NoContent]
+        case HTTPMethod.patch.rawValue:
+            return [.OK, .NoContent]
         case HTTPMethod.post.rawValue:
             return [.OK, .NoContent, .Created]
         case HTTPMethod.delete.rawValue:
