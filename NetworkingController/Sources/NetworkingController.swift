@@ -229,6 +229,8 @@ extension NetworkingController: URLSessionDataDelegate {
                 switch status?.rawValue {
                 case  NSURLErrorTimedOut?:
                     errorUserInfo[NSLocalizedDescriptionKey] = NSLocalizedString("The connection timed out, checkout your internet connection and try again", comment: "") as AnyObject?
+                case URLResponseStatus.ServerError.rawValue?:
+                    errorUserInfo[NSLocalizedDescriptionKey] = NSLocalizedString("A server error has occurred", comment: "") as AnyObject?
                 default:
                     if let json = try? JSONSerialization.jsonObject(with: existingData as Data, options: []) as? JSONObject {
                         let title: String?
