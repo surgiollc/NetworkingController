@@ -61,27 +61,4 @@ final class JSONResourceTests: XCTestCase {
         XCTAssertEqual(includedResource?.ID, "9")
         
     }
-    
-    func testThatCreatedResourceIsCorrect() {
-        let newAttributes: JSONObject = [
-            "foo": "bar"
-        ]
-        let personResource: JSONResource = JSONResource(ID: "1", type: "person", attributes: .none, relationships: .none)
-        let newRelationships: [String: JSONResource] = [
-            "person": personResource
-        ]
-        let newResource: JSONResource = JSONResource(ID: "1", type: "foo", attributes: newAttributes, relationships: newRelationships)
-        let document: JSONDocument = JSONDocument(resource: newResource)
-        let newJson: JSONObject = document.json
-        let rootDataObject: JSONObject? = newJson["data"] as? JSONObject
-        XCTAssertEqual(rootDataObject?["type"] as? String, "foo")
-        XCTAssertEqual(rootDataObject?["id"] as? String, "1")
-        let rootDataObjectAttrs: JSONObject? = rootDataObject?["attributes"] as? JSONObject
-        XCTAssertEqual(rootDataObjectAttrs?["foo"] as? String, "bar")
-        let rootDataObjectRelationships: JSONObject? = rootDataObject?["relationships"] as? JSONObject
-        let personJson: JSONObject? = rootDataObjectRelationships?["person"] as? JSONObject
-        let personRootDataObject: JSONObject? = personJson?["data"] as? JSONObject
-        XCTAssertEqual(personRootDataObject?["type"] as? String, "person")
-        XCTAssertEqual(personRootDataObject?["id"] as? String, "1")
-    }
 }
