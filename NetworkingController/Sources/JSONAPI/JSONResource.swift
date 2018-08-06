@@ -93,7 +93,7 @@ public struct JSONResource: JSONAPIResource {
     public let json: JSONObject
     private let numberFormatter: NumberFormatter = NumberFormatter()
     
-    public init(ID: String? = nil, type: String, attributes: JSONObject? = nil, relationships: [String: JSONObject]? = nil) {
+    public init(ID: String? = nil, type: String, attributes: JSONObject? = nil, relationships: [String: JSONResource]? = nil) {
         var newJson: JSONObject = ["type": type]
         if let ID: String = ID {
             newJson["id"] = ID
@@ -101,8 +101,14 @@ public struct JSONResource: JSONAPIResource {
         if let attrs: JSONObject = attributes {
             newJson["attributes"] = attrs
         }
-        if let relationships: [String: JSONObject] = relationships {
-            newJson["relationships"] = relationships
+        if let unwrappedRelationships: [String: JSONResource] = relationships, unwrappedRelationships.isEmpty == false {
+            var relationshipsJson: JSONObject = [:]
+            for (key, value) in unwrappedRelationships {
+                relationshipsJson[key] = [
+                    "data": value.json
+                ]
+            }
+            newJson["relationships"] = relationshipsJson
         }
         self.json = newJson
     }
