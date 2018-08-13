@@ -238,6 +238,9 @@ extension NetworkingController: URLSessionDataDelegate {
                         if let info: JSONObject = json?["errors"].flatMap(toJSONObjectArray)?.first {
                             title = info["title"].flatMap(toJSONString)
                             message = info["detail"].flatMap(toJSONString)
+                        } else if let info: JSONObject = json?["errors"].flatMap(toJSONObject) {
+                            title = info["title"].flatMap(toJSONString)
+                            message = info["detail"].flatMap(toJSONString)
                         } else {
                             title = NSLocalizedString("Unknown error", comment: "")
                             message = NSLocalizedString("An unknown error occurred", comment: "")
