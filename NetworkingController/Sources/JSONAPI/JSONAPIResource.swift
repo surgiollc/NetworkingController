@@ -9,7 +9,7 @@
 import Foundation
 
 protocol JSONAPIResource {
-    var json: JSONObject { get }
+    var json: JSONObject { get set }
     subscript(key: String) -> JSON? { get }
 }
 
@@ -17,6 +17,9 @@ extension JSONAPIResource {
     subscript(key: String) -> JSON? {
         get {
             return self.json[key]
+        }
+        set {
+            self.json[key] = newValue
         }
     }
 }

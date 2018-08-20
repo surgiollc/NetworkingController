@@ -25,7 +25,11 @@ public enum JSONResourceError: Error {
     }
 }
 
-public struct JSONResource: JSONAPIResource {
+public struct JSONResource: JSONAPIResource, Equatable {
+    
+    public static func ==(lhs: JSONResource, rhs: JSONResource) -> Bool {
+        return lhs.ID == rhs.ID
+    }
     
     public typealias RelatedObject = (ID: String, type: String)
     
@@ -90,7 +94,7 @@ public struct JSONResource: JSONAPIResource {
         return self.attributes?[attr] as? T
     }
     
-    public let json: JSONObject
+    public var json: JSONObject
     private let numberFormatter: NumberFormatter = NumberFormatter()
     
     public init(ID: String? = nil, type: String, attributes: JSONObject? = nil, relationships: [String: JSONObject]? = nil) {

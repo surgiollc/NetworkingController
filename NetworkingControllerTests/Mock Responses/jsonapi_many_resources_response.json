@@ -1,0 +1,57 @@
+{
+    "data": [{
+        "type": "articles",
+        "id": "1",
+        "attributes": {
+            "title": "title"
+        },
+        "relationships": {
+            "author": {
+                "links": {
+                    "self": "/articles/1/relationships/author",
+                },
+                "data": {
+                    "type": "people",
+                    "id": "9"
+                }
+            },
+            "array": {
+              "data": [{
+                  "type": "stuff",
+                  "id": "1"
+              }, {
+                  "type": "stuff",
+                  "id": "2"
+              }]
+            }
+        }
+    }, {
+        "type": "people",
+        "id": "1",
+        "attributes": {
+            "name": "Foo"
+        },
+        "relationships": {
+        }
+    }],
+    "errors": [{
+        "id": "1",
+        "title": "some error"
+    }],
+    "meta": {
+        "copyright": "Copyright 2015 Example Corp."
+    },
+    "links": {
+        "self": "http://www.google.com"
+    },
+    "included": [{
+        "type": "people",
+        "id": "9",
+        "attributes": {
+            "first-name": "Dan"
+        },
+        "links": {
+            "self": "http://example.com/people/9"
+        }
+    }]
+}

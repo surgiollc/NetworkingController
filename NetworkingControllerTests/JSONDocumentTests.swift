@@ -11,21 +11,29 @@ import XCTest
 
 final class JSONDocumentTests: XCTestCase {
     
-    private var jsonData: Data {
+    private var singleResourceJsonData: Data {
         let bundle: Bundle = Bundle(for: type(of: self))
         let url: URL = bundle.url(forResource: "jsonapi_response", withExtension: "json")!
         return try! Data(contentsOf: url)
     }
     
-    private var document: JSONDocument!
+    private var manyResourcesJsonData: Data {
+        let bundle: Bundle = Bundle(for: type(of: self))
+        let url: URL = bundle.url(forResource: "jsonapi_many_resources_response", withExtension: "json")!
+        return try! Data(contentsOf: url)
+    }
+    
+    private var singleResourceDocument: JSONDocument!
+    private var manyResourcesDocument: JSONDocument!
     
     override func setUp() {
         super.setUp()
-        self.document = JSONDocument(data: self.jsonData)!
+        self.singleResourceDocument = JSONDocument(data: self.singleResourceJsonData)!
+        self.manyResourcesDocument = JSONDocument(data: self.manyResourcesJsonData)!
     }
     
     func testThatDataObjectIsCorrect() {
-        let dataObject: JSONObject? = self.document.rootDataObject
+        let dataObject: JSONObject? = self.singleResourceDocument.rootDataObject
         XCTAssertNotNil(dataObject)
         XCTAssertEqual(dataObject?["type"] as? String, "articles")
         XCTAssertEqual(dataObject?["id"] as? String, "1")
@@ -41,7 +49,7 @@ final class JSONDocumentTests: XCTestCase {
     }
     
     func testThatResourcesAreCorrect() {
-        let resource: JSONResource? = self.document.resourceObject
+        let resource: JSONResource? = self.singleResourceDocument.resourceObject
         XCTAssertNotNil(resource)
         XCTAssertEqual(resource?.type, "articles")
         XCTAssertEqual(resource?.ID, "1")
@@ -57,7 +65,7 @@ final class JSONDocumentTests: XCTestCase {
     }
     
     func testThatErrorsAreCorrect() {
-        let errors: [JSONObject] = self.document.errors
+        let errors: [JSONObject] = self.singleResourceDocument.errors
         XCTAssertEqual(errors.count, 1)
         let er: JSONObject? = errors.first
         XCTAssertNotNil(er)
@@ -66,13 +74,13 @@ final class JSONDocumentTests: XCTestCase {
     }
     
     func testThatMetaIsCorrect() {
-        let meta: JSONObject? = self.document.meta
+        let meta: JSONObject? = self.singleResourceDocument.meta
         XCTAssertNotNil(meta)
         XCTAssertEqual(meta?["copyright"] as? String, "Copyright 2015 Example Corp.")
     }
     
     func testIncluded() {
-        let includes: [JSONResource] = self.document.includes
+        let includes: [JSONResource] = self.singleResourceDocument.includes
         XCTAssertEqual(includes.count, 1)
         let resource: JSONResource = includes.first!
         XCTAssertEqual(resource.type, "people")
@@ -80,6 +88,13 @@ final class JSONDocumentTests: XCTestCase {
         let name: String? = resource[attribute: "first-name"]
         XCTAssertEqual(name, "Dan")
         XCTAssertEqual(resource.links?["self"] as? String, "http://example.com/people/9")
+    }
+    
+    func testThatResourceCanBeRemoved() {
+        XCTAssertEqual(self.manyResourcesDocument.resourceObjects!.count, 2)
+        let firstResource: JSONResource = self.manyResourcesDocument.resourceObjects!.first!
+        self.manyResourcesDocument.remove(firstResource)
+        XCTAssertEqual(self.manyResourcesDocument.resourceObjects?.count, 1)
     }
     
 }

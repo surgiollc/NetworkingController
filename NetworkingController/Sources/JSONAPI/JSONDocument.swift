@@ -10,7 +10,7 @@ import Foundation
 
 public struct JSONDocument: JSONAPIResource {
         
-    public let json: JSONObject
+    public var json: JSONObject
     
     public var rootDataObject: JSONObject? {
         return self.json["data"] as? JSONObject
@@ -45,17 +45,32 @@ public struct JSONDocument: JSONAPIResource {
     }
     
     public var resourceObjects: [JSONResource]? {
-        guard let objects = self["data"] as? [JSONObject] else {
-            return .none
+        get {
+            guard case let objects as [JSONObject] = self["data"] else {
+                return .none
+            }
+            return objects.map(JSONResource.init)
         }
-        return objects.map(JSONResource.init)
+        set {
+            self["data"] = newValue?.map({ $0.json })
+        }
     }
     
     public var resourceObject: JSONResource? {
-        guard let data = self["data"] as? JSONObject else {
-            return .none
+        get {
+            guard case let object as JSONObject = self["data"] else {
+                return .none
+            }
+            return JSONResource(json: object)
         }
-        return JSONResource(json: data)
+        set {
+            self["data"] = newValue?.json
+        }
+    }
+    
+    public mutating func remove(_ resource: JSONResource) {
+        guard let index: Int = self.resourceObjects?.index(of: resource) else { return }
+        self.resourceObjects?.remove(at: index)
     }
     
     public var links: JSONObject? {
