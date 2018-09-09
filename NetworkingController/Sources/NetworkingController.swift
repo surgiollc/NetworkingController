@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Reachability
 
 public protocol NetworkingControllerAuthenticationDelegate: class {
     func requestDidReceiveAuthenticationChallenge(_ request: URLRequest) -> (username: String, password: String)?
@@ -95,6 +96,8 @@ open class NetworkingController: NSObject {
 
     private var requests: [Int: Request] = [:]
     private var responseData: [Int: Data] = [:]
+    
+    private let reachability: Reachability = Reachability()!
 
     private let responseDataAccessQueue: DispatchQueue = DispatchQueue(label: "com.spinlister.networkingcontroller")
     
@@ -132,6 +135,16 @@ open class NetworkingController: NSObject {
     @discardableResult public func send(_ request: URLRequest, delegate: NetworkingControllerDelegate) -> Int {
         DispatchQueue.main.async {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        }
+        
+        var requestToSend: URLRequest = request
+        if case .none = self.reachability.connection {
+            // When there is no internet connection, use the cached response, regardless of age
+            requestToSend.cachePolicy = .returnCacheDataDontLoad
+        } else {
+            // When there is an internet conntect, use the protocol cache policy. You can find a description of how this works here:
+            // https://developer.apple.com/documentation/foundation/nsurlrequestcachepolicy?language=objc
+            requestToSend.cachePolicy = .useProtocolCachePolicy
         }
         
         let dataTask: URLSessionDataTask = NetworkingController.session.dataTask(with: request)

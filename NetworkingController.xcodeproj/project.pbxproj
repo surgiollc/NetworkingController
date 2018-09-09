@@ -33,6 +33,7 @@
 		369B9AC41F70916B00C42E63 /* JSONNetworkingControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369B9AC31F70916B00C42E63 /* JSONNetworkingControllerTests.swift */; };
 		369B9AC61F7091C900C42E63 /* BaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369B9AC51F7091C900C42E63 /* BaseTests.swift */; };
 		36A4E9F9212B7754000D823A /* jsonapi_many_resources_response.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A4E9F8212B7754000D823A /* jsonapi_many_resources_response.json */; };
+		36ACBF2721449A4F00DC8742 /* Reachability.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36ACBF2621449A4F00DC8742 /* Reachability.framework */; };
 		36CD48001F7A1C31007BB3A4 /* username_password_response.json in Resources */ = {isa = PBXBuildFile; fileRef = 36CD47FF1F7A1C31007BB3A4 /* username_password_response.json */; };
 		36E2B5BD1F7B22CE00F090AD /* HTTPBasicAuthDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E2B5BC1F7B22CE00F090AD /* HTTPBasicAuthDelegate.swift */; };
 		36F823091F6DEF51007197BC /* XCTestCase+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F823081F6DEF51007197BC /* XCTestCase+Helpers.swift */; };
@@ -82,6 +83,7 @@
 		36A4E9AC212631FA000D823A /* NetworkingController-Alpha.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "NetworkingController-Alpha.xcconfig"; sourceTree = "<group>"; };
 		36A4E9AD21263204000D823A /* NetworkingController-Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "NetworkingController-Beta.xcconfig"; sourceTree = "<group>"; };
 		36A4E9F8212B7754000D823A /* jsonapi_many_resources_response.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = jsonapi_many_resources_response.json; sourceTree = "<group>"; };
+		36ACBF2621449A4F00DC8742 /* Reachability.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Reachability.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		36CD47FF1F7A1C31007BB3A4 /* username_password_response.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = username_password_response.json; sourceTree = "<group>"; };
 		36E2B5BC1F7B22CE00F090AD /* HTTPBasicAuthDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPBasicAuthDelegate.swift; sourceTree = "<group>"; };
 		36F823081F6DEF51007197BC /* XCTestCase+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Helpers.swift"; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36ACBF2721449A4F00DC8742 /* Reachability.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +128,7 @@
 				361737461F6DDA5A00426EC9 /* NetworkingController */,
 				361737511F6DDA5A00426EC9 /* NetworkingControllerTests */,
 				361737451F6DDA5A00426EC9 /* Products */,
+				36ACBF2521449A4F00DC8742 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -192,6 +196,14 @@
 				36A4E9AD21263204000D823A /* NetworkingController-Beta.xcconfig */,
 			);
 			path = Configurations;
+			sourceTree = "<group>";
+		};
+		36ACBF2521449A4F00DC8742 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				36ACBF2621449A4F00DC8742 /* Reachability.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		36F8230C1F6E55E7007197BC /* Mock Responses */ = {
