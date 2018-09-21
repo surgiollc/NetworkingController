@@ -30,8 +30,8 @@ extension NetworkingControllerErrorDelegate {
 }
 
 public protocol NetworkingControllerSuccessDelegate: class {
-    func taskDidComplete(_ task: URLSessionTask, data: Data)
-    func taskDidComplete(_ task: URLSessionTask, document: JSONDocument)
+    func taskDidComplete(_ task: URLSessionTask, data: Data, sender: NetworkingController)
+    func taskDidComplete(_ task: URLSessionTask, document: JSONDocument, sender: NetworkingController)
 }
 
 public typealias NetworkingControllerDelegate = NetworkingControllerSuccessDelegate & NetworkingControllerErrorDelegate & NetworkingControllerAuthenticationDelegate
@@ -40,8 +40,8 @@ public final class AnyNetworkingControllerDelegate: NetworkingControllerDelegate
     
     private let _taskDidFail: (URLSessionTask, NSError, URLResponseStatus?) -> Void
     private let _sessionDidfail: (NSError?) -> Void
-    private let _taskDidCompleteWithData: (URLSessionTask, Data) -> Void
-    private let _taskDidCompleteWithDocument: (URLSessionTask, JSONDocument) -> Void
+    private let _taskDidCompleteWithData: (URLSessionTask, Data, NetworkingController) -> Void
+    private let _taskDidCompleteWithDocument: (URLSessionTask, JSONDocument, NetworkingController) -> Void
     private let _didReceiveAuthChallenge: (URLRequest) -> (String, String)?
     private let _shouldProceedWithoutCredentials: (URLRequest) -> Bool
     
@@ -62,12 +62,12 @@ public final class AnyNetworkingControllerDelegate: NetworkingControllerDelegate
         self._sessionDidfail(error)
     }
     
-    public func taskDidComplete(_ task: URLSessionTask, data: Data) {
-        self._taskDidCompleteWithData(task, data)
+    public func taskDidComplete(_ task: URLSessionTask, data: Data, sender: NetworkingController) {
+        self._taskDidCompleteWithData(task, data, sender)
     }
     
-    public func taskDidComplete(_ task: URLSessionTask, document: JSONDocument) {
-        self._taskDidCompleteWithDocument(task, document)
+    public func taskDidComplete(_ task: URLSessionTask, document: JSONDocument, sender: NetworkingController) {
+        self._taskDidCompleteWithDocument(task, document, sender)
     }
     
     public func requestDidReceiveAuthenticationChallenge(_ request: URLRequest) -> (username: String, password: String)? {
@@ -220,21 +220,21 @@ extension NetworkingController: URLSessionDataDelegate {
                     if status != .NoContent {
                         if let document: JSONDocument = JSONDocument(data: existingData) {
                             DispatchQueue.global().async {
-                                delegate.taskDidComplete(task, document: document)
+                                delegate.taskDidComplete(task, document: document, sender: strongSelf)
                             }
                         } else {
                             DispatchQueue.global().async {
-                                delegate.taskDidComplete(task, data: existingData)
+                                delegate.taskDidComplete(task, data: existingData, sender: strongSelf)
                             }
                         }
                     } else {
                         DispatchQueue.global().async {
-                            delegate.taskDidComplete(task, data: existingData)
+                            delegate.taskDidComplete(task, data: existingData, sender: strongSelf)
                         }
                     }
                 } else {
                     DispatchQueue.global().async {
-                        delegate.taskDidComplete(task, data: existingData)
+                        delegate.taskDidComplete(task, data: existingData, sender: strongSelf)
                     }
                 }
             } catch {
