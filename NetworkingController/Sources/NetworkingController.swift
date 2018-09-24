@@ -132,7 +132,7 @@ open class NetworkingController: NSObject {
     }
 
     // Returns the task ID
-    @discardableResult public func send(_ request: URLRequest, delegate: NetworkingControllerDelegate) -> Int {
+    @discardableResult public func send(_ request: URLRequest, delegate: NetworkingControllerDelegate) -> URLSessionDataTask {
         DispatchQueue.main.async {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
         }
@@ -156,7 +156,7 @@ open class NetworkingController: NSObject {
             dataTask.resume()
         }
         
-        return dataTask.taskIdentifier
+        return dataTask
     }
 
     private func readResponseData(_ closure: @escaping (_ mutableData: inout [Int: Data]) -> Void, completion: (() -> Void)? = nil) {
