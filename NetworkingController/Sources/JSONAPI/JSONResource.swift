@@ -8,14 +8,14 @@
 
 import Foundation
 
-public enum JSONResourceError: Error {
-    case notASJSONAPIResource
+public enum JSONResourceError: Error, CustomDebugStringConvertible {
+    case notJSONAPIResource
     case wrongType(String)
     case missingAttribute(String)
     
-    public var localizedDescription: String {
+    public var debugDescription: String {
         switch self {
-        case .notASJSONAPIResource:
+        case .notJSONAPIResource:
             return "Not a JSONAPI Resource"
         case .wrongType(let type):
             return "Unexpected resource type: \(type)"
