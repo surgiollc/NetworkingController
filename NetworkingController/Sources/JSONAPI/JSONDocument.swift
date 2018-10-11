@@ -37,7 +37,8 @@ public struct JSONDocument: JSONAPIResource {
     public init?(data: Data) {
         if let object: Any = try? JSONSerialization.jsonObject(with: data, options: []),
             let json: JSONObject = object as? JSONObject,
-            json["data"] != nil {
+            // either "data" or "errors", or "meta" must be present for this to be a valid JSONDocument
+            (json["data"] != nil || json["errors"] != nil) || json["meta"] != nil {
             self.json = json
         } else {
             return nil
