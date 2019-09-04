@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Reachability
 
 public protocol NetworkingControllerAuthenticationDelegate: class {
     func requestDidReceiveAuthenticationChallenge(_ request: URLRequest) -> (username: String, password: String)?
