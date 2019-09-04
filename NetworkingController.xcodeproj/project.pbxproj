@@ -30,10 +30,10 @@
 		366EE5F91F6DE50C0003197C /* HTTPMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366EE5F81F6DE50C0003197C /* HTTPMethod.swift */; };
 		3680DDB720A102AA003BB527 /* NetworkingControllerSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3680DDB620A102AA003BB527 /* NetworkingControllerSessionDelegate.swift */; };
 		3681B0C1201C1593004A554C /* challenge_no_credentials_needed_response.json in Resources */ = {isa = PBXBuildFile; fileRef = 3681B0C0201C1592004A554C /* challenge_no_credentials_needed_response.json */; };
+		36945EAA2320816200E09EB2 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36945EA92320816200E09EB2 /* Reachability.swift */; };
 		369B9AC41F70916B00C42E63 /* JSONNetworkingControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369B9AC31F70916B00C42E63 /* JSONNetworkingControllerTests.swift */; };
 		369B9AC61F7091C900C42E63 /* BaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369B9AC51F7091C900C42E63 /* BaseTests.swift */; };
 		36A4E9F9212B7754000D823A /* jsonapi_many_resources_response.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A4E9F8212B7754000D823A /* jsonapi_many_resources_response.json */; };
-		36ACBF2721449A4F00DC8742 /* Reachability.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36ACBF2621449A4F00DC8742 /* Reachability.framework */; };
 		36CD48001F7A1C31007BB3A4 /* username_password_response.json in Resources */ = {isa = PBXBuildFile; fileRef = 36CD47FF1F7A1C31007BB3A4 /* username_password_response.json */; };
 		36E2B5BD1F7B22CE00F090AD /* HTTPBasicAuthDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E2B5BC1F7B22CE00F090AD /* HTTPBasicAuthDelegate.swift */; };
 		36F823091F6DEF51007197BC /* XCTestCase+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F823081F6DEF51007197BC /* XCTestCase+Helpers.swift */; };
@@ -78,6 +78,8 @@
 		366EE5F81F6DE50C0003197C /* HTTPMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPMethod.swift; sourceTree = "<group>"; };
 		3680DDB620A102AA003BB527 /* NetworkingControllerSessionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingControllerSessionDelegate.swift; sourceTree = "<group>"; };
 		3681B0C0201C1592004A554C /* challenge_no_credentials_needed_response.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = challenge_no_credentials_needed_response.json; sourceTree = "<group>"; };
+		36945EA7232080F400E09EB2 /* Reachability.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Reachability.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		36945EA92320816200E09EB2 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		369B9AC31F70916B00C42E63 /* JSONNetworkingControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONNetworkingControllerTests.swift; sourceTree = "<group>"; };
 		369B9AC51F7091C900C42E63 /* BaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTests.swift; sourceTree = "<group>"; };
 		36A4E9AC212631FA000D823A /* NetworkingController-Alpha.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "NetworkingController-Alpha.xcconfig"; sourceTree = "<group>"; };
@@ -96,7 +98,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				36ACBF2721449A4F00DC8742 /* Reachability.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -172,6 +173,7 @@
 			isa = PBXGroup;
 			children = (
 				360238D3207845A8007CB50D /* JSONAPI */,
+				36945EA92320816200E09EB2 /* Reachability.swift */,
 				361737631F6DDAEA00426EC9 /* APIURLResponseValidationType.swift */,
 				361737601F6DDAEA00426EC9 /* ImageNetworkingController.swift */,
 				361737611F6DDAEA00426EC9 /* JSONNetworkingController.swift */,
@@ -201,6 +203,7 @@
 		36ACBF2521449A4F00DC8742 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				36945EA7232080F400E09EB2 /* Reachability.framework */,
 				36ACBF2621449A4F00DC8742 /* Reachability.framework */,
 			);
 			name = Frameworks;
@@ -348,6 +351,7 @@
 				366EE5F11F6DDDCE0003197C /* URLResponseStatus.swift in Sources */,
 				360238DD207945BD007CB50D /* JSONResource.swift in Sources */,
 				360238DF207945CD007CB50D /* JSONAPIResource.swift in Sources */,
+				36945EAA2320816200E09EB2 /* Reachability.swift in Sources */,
 				3622F32B1F7B156B0069A575 /* URLSessionTaskDelegate+Helpers.swift in Sources */,
 				366EE5F31F6DDEA80003197C /* NSError+Helpers.swift in Sources */,
 				360238D920785398007CB50D /* URLSessionTask+NetworkingController.swift in Sources */,
