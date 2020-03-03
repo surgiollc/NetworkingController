@@ -146,7 +146,7 @@ extension JSONNetworkingControllerTests: NetworkingControllerAuthenticationDeleg
         return (username, password)
     }
     
-    func shouldProceedWithAuthenticationChallendWithoutCredentials(_ request: URLRequest) -> Bool {
+    func shouldProceedWithAuthenticationChallengeWithoutCredentials(_ request: URLRequest) -> Bool {
         return self.canProceedWithoutAuthentication
     }
 }

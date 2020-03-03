@@ -11,7 +11,7 @@ import Reachability
 
 public protocol NetworkingControllerAuthenticationDelegate: class {
     func requestDidReceiveAuthenticationChallenge(_ request: URLRequest) -> (username: String, password: String)?
-    func shouldProceedWithAuthenticationChallendWithoutCredentials(_ request: URLRequest) -> Bool
+    func shouldProceedWithAuthenticationChallengeWithoutCredentials(_ request: URLRequest) -> Bool
 }
 
 public protocol NetworkingControllerErrorDelegate: class {
@@ -24,7 +24,7 @@ extension NetworkingControllerErrorDelegate {
         return .none
     }
     
-    public func shouldProceedWithAuthenticationChallendWithoutCredentials(_ request: URLRequest) -> Bool {
+    public func shouldProceedWithAuthenticationChallengeWithoutCredentials(_ request: URLRequest) -> Bool {
         return true
     }
 }
@@ -51,7 +51,7 @@ public final class AnyNetworkingControllerDelegate: NetworkingControllerDelegate
         self._taskDidCompleteWithData = delegate.taskDidComplete
         self._taskDidCompleteWithDocument = delegate.taskDidComplete
         self._didReceiveAuthChallenge = delegate.requestDidReceiveAuthenticationChallenge
-        self._shouldProceedWithoutCredentials = delegate.shouldProceedWithAuthenticationChallendWithoutCredentials
+        self._shouldProceedWithoutCredentials = delegate.shouldProceedWithAuthenticationChallengeWithoutCredentials
     }
     
     public func taskDidFail(_ task: URLSessionTask, error: NSError, status: URLResponseStatus?) {
@@ -74,7 +74,7 @@ public final class AnyNetworkingControllerDelegate: NetworkingControllerDelegate
         return self._didReceiveAuthChallenge(request)
     }
     
-    public func shouldProceedWithAuthenticationChallendWithoutCredentials(_ request: URLRequest) -> Bool {
+    public func shouldProceedWithAuthenticationChallengeWithoutCredentials(_ request: URLRequest) -> Bool {
         return self._shouldProceedWithoutCredentials(request)
     }
 }

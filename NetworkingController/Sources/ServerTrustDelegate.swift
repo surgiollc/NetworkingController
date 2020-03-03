@@ -18,7 +18,7 @@ final class ServerTrustDelegate: NSObject, URLSessionTaskDelegate {
         var shouldProceedWithoutCredentials: Bool = false
         if let request: URLRequest = task.originalRequest, let authDelegate: NetworkingControllerAuthenticationDelegate = self.authDelegate {
             DispatchQueue.main.sync {
-                shouldProceedWithoutCredentials = authDelegate.shouldProceedWithAuthenticationChallendWithoutCredentials(request)
+                shouldProceedWithoutCredentials = authDelegate.shouldProceedWithAuthenticationChallengeWithoutCredentials(request)
             }
         }
         if let credential: URLCredential = self.credentialForServerTrust(in: protectionSpace) {
